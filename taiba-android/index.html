@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TAIBA Prototype</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#d7dce2;
+      --blue:#0d6efd;
+      --green:#198754;
+      --orange:#fd7e14;
+      --red:#dc3545;
+      --teal:#20c997;
+      --purple:#6f42c1;
+      --gray:#6c757d;
+      --soft-blue:#f5f9ff;
+      --soft-green:#f5fbf8;
+      --soft-yellow:#fffbea;
+      --soft-red:#fff5f5;
+      --shadow:0 8px 24px rgba(15, 23, 42, 0.08);
+      --radius:16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      padding: 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    h2, h3 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+
+    h2 { font-size: 24px; margin-bottom: 16px; }
+
+    .app-header { text-align: center; margin-bottom: 16px; }
+    .app-logo { width: 80px; margin-bottom: 6px; }
+
+    .box, .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .toolbar, .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .toolbar button { flex: 0 1 220px; margin: 0; }
+
+    .search-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #8bb7ff;
+      box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    button {
+      min-height: 56px;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+      white-space: normal;
+      word-break: break-word;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+      transition: all 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+    button:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+    button[disabled] { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .action-grid, .inline-actions, .modal-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .action-grid button, .inline-actions button, .modal-footer button { flex: 0 1 160px; margin: 0; }
+
+    .blue { background: var(--blue); }
+    .green { background: var(--green); }
+    .orange { background: var(--orange); }
+    .red { background: var(--red); }
+    .teal { background: var(--teal); }
+    .purple { background: var(--purple); }
+    .gray { background: var(--gray); }
+
+    .info-strip {
+      background: var(--soft-blue);
+      border-left: 4px solid var(--blue);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .beneficiary-head {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .beneficiary-main { min-width: 0; flex: 1; }
+    .beneficiary-name { font-size: 20px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; word-break: break-word; }
+    .beneficiary-id { color: var(--muted); font-size: 13px; word-break: break-all; }
+
+    .profile-photo {
+      width: 92px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 14px;
+      display: block;
+      border: 1px solid var(--border);
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .profile-box {
+      background: var(--soft-blue);
+      border-left: 4px solid var(--purple);
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 12px;
+      line-height: 1.45;
+    }
+
+    .case-box {
+      background: var(--soft-yellow);
+      border-left: 4px solid var(--blue);
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 12px;
+    }
+
+    .history-item, .audit-item, .daily-item {
+      background: var(--soft-green);
+      border-left: 4px solid var(--teal);
+      padding: 12px;
+      margin: 10px 0 0;
+      border-radius: 12px;
+      line-height: 1.45;
+    }
+
+    .audit-item { background: #f8f7ff; border-left-color: var(--purple); }
+    .daily-item { background: #f7fbff; border-left-color: var(--blue); }
+    .negative-box { background: var(--soft-red); border-left-color: var(--red); }
+
+    .section-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+    .muted { color: var(--muted); font-size: 13px; margin-top: 5px; line-height: 1.4; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 12px;
+      margin-top: 8px;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.62);
+      border-radius: 10px;
+      padding: 8px 10px;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .stat-grid {
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .stat-card {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+    }
+
+    .stat-number { font-size:20px; font-weight:700; }
+    .empty-state { text-align: center; color: var(--muted); padding: 22px 16px; font-size: 15px; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 760px;
+      border-radius: 18px;
+      padding: 16px;
+      max-height: min(92vh, 920px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+    }
+
+    .small-modal { max-width: 560px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+    }
+
+    .field-block { min-width: 0; }
+    .field-block.full { grid-column: 1 / -1; }
+
+    .label { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+    .preview-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.35; }
+
+    .photo-upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 700;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-upload-box:hover { border-color: #8bb7ff; background: #f9fbff; }
+
+    .photo-preview {
+      display: none;
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 10px;
+      background: #fff;
+    }
+
+    .history-list.hidden, .audit-list.hidden, .daily-list.hidden, .hidden { display:none; }
+
+    .voucher-header { text-align: center; margin-bottom: 12px; }
+    .voucher-logo { width: 70px; margin-bottom: 8px; }
+    .voucher-subtitle { font-size: 12px; color: #666; }
+    .voucher-body { line-height: 1.7; font-size: 16px; }
+    .signature-row { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; }
+    .signature-box { flex: 1; text-align: center; }
+    .signature-line { border-top: 1px solid #000; margin-bottom: 6px; }
+    .signature-label { font-size: 12px; color: var(--text); }
+
+    @media print {
+  @page {
+    size: A5;
+    margin: 8mm;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #receiptModal,
+  #receiptModal * {
+    visibility: visible !important;
+  }
+
+  #receiptModal {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #receiptModal .modal {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 140mm !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 auto !important;
+    padding: 12mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #receiptModal .modal-footer {
+    display: none !important;
+  }
+#receiptModal {
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+}#receiptModal .modal { page-break-inside: avoid !important; }
+  #voucherModal,
+  #voucherModal * {
+    visibility: hidden !important;
+    display: none !important;
+  }
+}
+
+    @media (max-width: 720px) {
+      body { padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+      h2 { font-size: 22px; }
+      .box, .card, .modal { padding: 14px; }
+      .form-grid, .meta-grid, .stat-grid { grid-template-columns: 1fr; }
+      .beneficiary-head { flex-direction: column; }
+      .profile-photo { width: 100%; max-width: 180px; height: auto; aspect-ratio: 1 / 1; }
+      .toolbar button, .action-grid button, .inline-actions button, .modal-footer button { flex-basis: 100%; }
+      .signature-row { flex-direction: column; gap: 20px; }
+    }
+
+    @media (max-width: 420px) {
+      button { font-size: 13px; }
+      .beneficiary-name { font-size: 18px; }
+      .modal-backdrop { padding: 8px; }
+      .modal { border-radius: 16px; max-height: 94vh; }
+      .voucher-body { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <img src="./icon-192.png" alt="TAIBA logo" class="app-logo">
+  <h2 style="margin:0; font-size:20px;">TAIBA WELFARE & EDUCATIONAL SOCIETY</h2>
+  <div style="font-size:12px; color:#6b7280;">(Registered Society)</div>
+</div>
+
+<div class="box">
+  <div class="section-title">Current User</div>
+  <div class="form-grid">
+    <div class="field-block">
+      <div class="label">Role</div>
+      <select id="session_role">
+        <option value="employee">Employee</option>
+        <option value="member">Member</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="field-block">
+      <div class="label">User ID / Name</div>
+      <input id="session_userId" placeholder="EMP-001 / Member name">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="blue" onclick="applySession()">Apply User</button>
+  </div>
+  <div id="sessionSummary" class="info-strip"></div>
+  <div id="pendingCounters" class="stat-grid" style="margin-top:12px;"></div>
+  <div id="pendingNotice" class="info-strip" style="display:none;"></div>
+</div>
+
+<div class="box">
+  <div class="toolbar">
+    <button id="registerBtn" class="blue" onclick="openRegisterForm()">Register<br>Beneficiary</button>
+  </div>
+
+  <div class="search-wrap">
+    <input id="search" placeholder="Search name or ID">
+    <div class="action-grid">
+      <button class="blue" onclick="searchData()">Search</button>
+      <button class="gray" onclick="showAll()">Show Data</button>
+      <button class="red" onclick="clearData()">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="box">
+  <div class="section-title">Daily Activity Book</div>
+  <div class="muted">Every important action is stamped with role, user ID, and date/time. Finance-related work is also pushed into the daybook automatically.</div>
+
+  <div class="form-grid" style="margin-top:12px;">
+    <div class="field-block">
+      <div class="label">From Date</div>
+      <input type="date" id="dailyFromDate" onchange="renderDailyBook()">
+    </div>
+    <div class="field-block">
+      <div class="label">To Date</div>
+      <input type="date" id="dailyToDate" onchange="renderDailyBook()">
+    </div>
+  </div>
+
+  <div class="action-grid">
+    <button class="blue" onclick="filterDailyBookToday()">Today</button>
+    <button class="gray" onclick="clearDailyBookFilter()">Clear Date Filter</button>
+  </div>
+
+  <div id="financeActions" class="action-grid" style="margin-top:12px;"></div>
+  <div class="action-grid">
+    <button class="gray" onclick="toggleDailyBook()"><span id="dailyToggleText">Show Daily Activity Book</span></button>
+  </div>
+  <div id="dailyBookWrap" class="daily-list hidden"></div>
+</div>
+
+<div id="output"></div>
+
+<div id="formModal" class="modal-backdrop">
+  <div class="modal">
+    <h3 id="formTitle">Register Beneficiary</h3>
+    <div class="form-grid">
+      <div class="field-block">
+        <div class="label">Name</div>
+        <input id="f_name" placeholder="Enter name">
+      </div>
+
+      <div class="field-block full">
+        <div class="label">Address Line 1</div>
+        <input id="f_address1" placeholder="House / Building / Street">
+      </div>
+
+      <div class="field-block full">
+        <div class="label">Address Line 2</div>
+        <input id="f_address2" placeholder="Area / Landmark (optional)">
+      </div>
+
+      <div class="field-block">
+        <div class="label">City / Village</div>
+        <input id="f_city" placeholder="Enter city or village">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Contact Number</div>
+        <input id="f_contact" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter mobile number">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Postcode</div>
+        <input id="f_postcode" type="text" inputmode="numeric" maxlength="10" placeholder="Enter postcode">
+      </div>
+
+      <div class="field-block">
+        <div class="label">DIGIPIN (Optional)</div>
+        <input id="f_digipin" placeholder="Enter DIGIPIN (optional)">
+      </div>
+
+      <div class="field-block full">
+        <div class="label">Aadhar Card Number</div>
+        <input id="f_aadhar" type="tel" inputmode="numeric" maxlength="14" placeholder="Enter Aadhar number">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Photo</div>
+        <input type="file" id="f_photo" accept="image/*" class="hidden">
+        <div id="photoUploadBox" class="photo-upload-box" onclick="triggerPhotoUpload()">📷 Tap to upload photo</div>
+        <img id="photoPreview" class="photo-preview" alt="Photo preview">
+        <div class="preview-note">Image is compressed automatically for mobile safety.</div>
+      </div>
+
+      <div class="field-block">
+        <div class="label">Age</div>
+        <input id="f_age" type="number" min="0" placeholder="Enter age">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Gender</div>
+        <select id="f_gender">
+          <option value="">Select Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Transgender</option>
+        </select>
+      </div>
+
+      <div class="field-block">
+        <div class="label">Marital Status</div>
+        <select id="f_maritalStatus">
+          <option value="">Select Marital Status</option>
+          <option>Married</option>
+          <option>Divorce</option>
+          <option>Widowed</option>
+          <option>Single</option>
+          <option>Partner Missing</option>
+          <option>Absent</option>
+          <option>Jailed</option>
+        </select>
+      </div>
+
+      <div class="field-block">
+        <div class="label">Help Required For</div>
+        <select id="f_helpFor" onchange="toggleRelationField()">
+          <option value="Self">Self</option>
+          <option value="Relative">Relative</option>
+          <option value="Neighbour">Neighbour</option>
+        </select>
+      </div>
+
+      <div class="field-block hidden" id="relationWrap">
+        <div class="label" id="relationLabel">Relative / Neighbour Name</div>
+        <select id="f_relationType" class="hidden" onchange="toggleOtherRelationField()">
+          <option value="">Select relation</option>
+          <option>Father</option>
+          <option>Mother</option>
+          <option>Husband</option>
+          <option>Wife</option>
+          <option>Son</option>
+          <option>Daughter</option>
+          <option>Brother</option>
+          <option>Sister</option>
+          <option>Uncle</option>
+          <option>Aunt</option>
+          <option>Grandfather</option>
+          <option>Grandmother</option>
+          <option>Other</option>
+        </select>
+        <input id="f_relationName" placeholder="Enter relative / neighbour name">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Source of Income / Job / Business</div>
+        <input id="f_incomeSource" placeholder="Enter source of income / job / business">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Earnings per Month</div>
+        <input id="f_monthlyIncome" placeholder="Enter monthly income">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Total Family Members</div>
+        <input id="f_familyMembers" type="number" min="0" placeholder="Enter total family members">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Earning Members</div>
+        <input id="f_earningMembers" type="number" min="0" placeholder="Enter earning members">
+      </div>
+
+      <div class="field-block">
+        <div class="label">Registration Done By</div>
+        <input id="f_registeredBy" placeholder="Auto from login later">
+      </div>
+
+      <div class="field-block full">
+        <div class="label">Notes</div>
+        <textarea id="f_notes" placeholder="Optional notes"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div id="duplicateWarning" style="width:100%; font-size:13px; margin-bottom:6px;"></div>
+      <button class="blue" onclick="saveProfile()">Save Profile</button>
+      <button class="gray" onclick="closeForm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="aidModal" class="modal-backdrop">
+  <div class="modal small-modal">
+    <h3 id="aidTitle">Grant Aid</h3>
+
+    <div class="field-block">
+      <div class="label">Aid Type</div>
+      <select id="a_aidType">
+        <option value="">Select Aid Type</option>
+      </select>
+    </div>
+
+    <div class="field-block">
+      <div class="label">Amount</div>
+      <input id="a_amount" type="text" inputmode="decimal" placeholder="Enter amount">
+    </div>
+
+    <div class="field-block">
+      <div class="label">Grant From Account</div>
+      <select id="a_fundType">
+        <option value="">Select fund source</option>
+        <option>Zakat Fund</option>
+        <option>Donation Fund</option>
+      </select>
+    </div>
+
+    <div class="field-block">
+      <div class="label">Dealer / Vendor</div>
+      <input id="a_dealer" placeholder="Enter dealer / vendor">
+    </div>
+
+    <div class="field-block">
+      <div class="label">Note</div>
+      <textarea id="a_note" placeholder="Optional note"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="green" onclick="saveAid()">Save Aid</button>
+      <button class="gray" onclick="closeAidModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="financeModal" class="modal-backdrop">
+  <div class="modal small-modal">
+    <h3 id="financeTitle">Finance Entry</h3>
+
+    <div class="field-block">
+      <div class="label">Name / Party</div>
+      <input id="m_party" placeholder="Donor / Dealer / Staff / Narration">
+    </div>
+
+    <div class="field-block">
+      <div class="label">Amount</div>
+      <input id="m_amount" type="text" inputmode="decimal" placeholder="Enter amount">
+    </div>
+
+    <div class="field-block" id="modeWrap">
+      <div class="label">Mode</div>
+      <select id="m_mode">
+        <option value="">Select mode</option>
+        <option>Cash</option>
+        <option>Online</option>
+        <option>Cheque</option>
+        <option>Bank Transfer</option>
+      </select>
+    </div>
+
+    <div class="field-block" id="fundTypeWrap">
+      <div class="label">Fund Type</div>
+      <select id="m_fundType">
+        <option value="">Select fund type</option>
+        <option>Zakat Fund</option>
+        <option>Donation Fund</option>
+      </select>
+    </div>
+
+    <div class="field-block">
+      <div class="label">Note</div>
+      <textarea id="m_note" placeholder="Optional note"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="green" onclick="saveFinanceEntry()">Save Entry</button>
+      <button class="blue" onclick="saveFinanceEntry(true)">Save + Generate Receipt</button>
+      <button class="gray" onclick="closeFinanceModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="voucherModal" class="modal-backdrop">
+  <div class="modal small-modal">
+    <div class="voucher-header">
+      <img src="./icon-192.png" alt="TAIBA logo" class="voucher-logo">
+      <h3>TAIBA EDUCATIONAL & WELFARE SOCIETY</h3>
+      <div class="voucher-subtitle">(Registered Society)</div>
+      <hr style="margin:10px 0;">
+    </div>
+
+    <div class="voucher-body">
+      <div><b>Voucher ID:</b> <span id="v_id"></span></div>
+      <div><b>Date:</b> <span id="v_date"></span></div>
+      <div><b>Generated By:</b> <span id="v_generatedBy"></span></div>
+      <br>
+      <div><b>Pay To:</b> <span id="v_dealer"></span></div>
+      <div><b>Account Of:</b> <span id="v_type"></span></div>
+      <div><b>Fund Source:</b> <span id="v_fundType"></span></div>
+      <div><b>Amount:</b> ₹ <span id="v_amount"></span></div>
+      <div><b>Amount in Words:</b> <span id="v_words"></span></div>
+      <div><b>Beneficiary:</b> <span id="v_name"></span></div>
+
+      <div class="signature-row">
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">Beneficiary Signature / FP</div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">TAIBA Authorization</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="voucherPrintActions" class="modal-footer">
+      <button class="blue" onclick="printVoucher()">Print Voucher</button>
+      <button class="teal" onclick="shareVoucher()">Share Voucher</button>
+      <button class="gray" onclick="closeVoucher()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="receiptModal" class="modal-backdrop">
+  <div class="modal small-modal">
+    <div class="voucher-header">
+      <img src="./icon-192.png" alt="TAIBA logo" class="voucher-logo">
+      <h3>TAIBA EDUCATIONAL & WELFARE SOCIETY</h3>
+      <div class="voucher-subtitle">(Registered Society)</div>
+      <div id="r_fundHeading" style="font-weight:700; font-size:22px; letter-spacing:1px; margin-top:6px;">RECEIPT</div>
+      <hr style="margin:10px 0;">
+    </div>
+
+    <div class="voucher-body">
+      <div><b>Receipt No:</b> <span id="r_id"></span></div>
+      <div><b>Date:</b> <span id="r_date"></span></div>
+      <div><b>Received From:</b> <span id="r_party"></span></div>
+      <div><b>Amount:</b> ₹ <span id="r_amount"></span></div>
+      <div><b>Amount in Words:</b> <span id="r_words"></span></div>
+      <div><b>Mode:</b> <span id="r_mode"></span></div>
+      <div><b>Fund Type:</b> <span id="r_fundType"></span></div>
+      <div><b>Received By:</b> <span id="r_receivedBy"></span></div>
+      <div id="r_noteWrap" class="muted"></div>
+
+      <div class="signature-row">
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">Donor / Party</div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">TAIBA Signature</div>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:18px; border-top:1px solid #ddd; padding-top:10px; font-size:12px;">
+        This receipt is issued subject to realisation of your cheque / Draft.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="blue" onclick="printReceipt()">Print Receipt</button>
+      <button class="teal" onclick="shareReceipt()">Save / Share Receipt</button>
+      <button class="gray" onclick="closeReceipt()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "taibaV11";
+const DAILY_BOOK_KEY = "taibaDailyBookV1";
+const SESSION_KEY = "taibaSessionV1";
+const RECEIPT_COUNTERS_KEY = "taibaReceiptCountersV1";
+const VOUCHER_COUNTERS_KEY = "taibaVoucherCountersV1";
+let data = loadData();
+let dailyBook = loadDailyBook();
+let session = loadSession();
+let editingId = null;
+let pendingPhotoData = null;
+let currentAidId = null;
+let currentAidMode = null;
+let historyVisibility = {};
+let auditVisibility = {};
+let currentRenderedIds = null;
+let isDailyBookVisible = false;
+let financeMode = "";
+let currentVoucherContext = null;
+let currentReceiptContext = null;
+let currentDashboardFilter = null;
+
+const ROLE_LABELS = {
+  employee: "Employee",
+  member: "Member",
+  admin: "Admin"
+};
+
+const ROLE_COLORS = {
+  employee: "var(--green)",
+  member: "var(--orange)",
+  admin: "var(--red)"
+};
+
+const PERMISSIONS = {
+  employee: {
+    register: true,
+    editProfile: true,
+    investigate: true,
+    markDecision: true,
+    approve: false,
+    grantAid: false,
+    financeMember: false,
+    financeAdmin: false,
+    viewVoucher: true,
+    viewRecords: false,
+    checkAccounts: false
+  },
+  member: {
+    register: true,
+    editProfile: true,
+    investigate: true,
+    markDecision: true,
+    approve: false,
+    grantAid: false,
+    financeMember: true,
+    financeAdmin: false,
+    viewVoucher: true,
+    viewRecords: true,
+    checkAccounts: true
+  },
+  admin: {
+    register: true,
+    editProfile: true,
+    investigate: true,
+    markDecision: true,
+    approve: true,
+    grantAid: true,
+    financeMember: true,
+    financeAdmin: true,
+    viewVoucher: true,
+    viewRecords: true,
+    checkAccounts: true
+  }
+};
+
+const ONE_TIME_AID_TYPES = [
+  "Hospitalization",
+  "Medicine",
+  "Housing Aid",
+  "Student Welfare Scheme",
+  "Business Loan",
+  "School/College Fees",
+  "Medical Test",
+  "Ration",
+  "Funeral Expenses",
+  "Others"
+];
+
+const REGULAR_AID_TYPES = [
+  "Monthly Medicine",
+  "Monthly Ration",
+  "Daily Dinner",
+  "Monthly Fees For School/College",
+  "Monthly Rent"
+];
+
+window.onload = function () {
+  document.getElementById("output").innerHTML = "";
+  document.getElementById("session_role").value = session.role;
+  document.getElementById("session_userId").value = session.userId;
+  document.getElementById("f_registeredBy").value = session.userId;
+  applySessionToUI();
+};
+
+function loadData(){
+  const raw =
+    localStorage.getItem(STORAGE_KEY) ||
+    localStorage.getItem("taibaV10") ||
+    localStorage.getItem("taibaV8") ||
+    localStorage.getItem("taibaV7") ||
+    localStorage.getItem("taibaV6") ||
+    "[]";
+  let arr = [];
+  try { arr = JSON.parse(raw); } catch (e) { arr = []; }
+  return Array.isArray(arr) ? arr.map(normalizeBeneficiary) : [];
+}
+
+function loadDailyBook(){
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DAILY_BOOK_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){
+    return [];
+  }
+}
+
+function loadSession(){
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+    const role = ["employee","member","admin"].includes(parsed.role) ? parsed.role : "employee";
+    const userId = String(parsed.userId || "EMP-001");
+    return { role, userId };
+  } catch(e){
+    return { role: "employee", userId: "EMP-001" };
+  }
+}
+
+function normalizeBeneficiary(b){
+  return {
+    id: b.id || ("TAIBA-" + Date.now()),
+    name: b.name || "",
+    photo: b.photo || "",
+    profile: {
+      age: b.profile?.age || "",
+      gender: b.profile?.gender || "",
+      maritalStatus: b.profile?.maritalStatus || "",
+      helpFor: b.profile?.helpFor || "Self",
+      relationName: b.profile?.relationName || "",
+      relationType: b.profile?.relationType || "",
+      postcode: b.profile?.postcode || "",
+      digipin: b.profile?.digipin || "",
+      incomeSource: b.profile?.incomeSource || "",
+      monthlyIncome: b.profile?.monthlyIncome || "",
+      familyMembers: b.profile?.familyMembers || "",
+      earningMembers: b.profile?.earningMembers || "",
+      address1: b.profile?.address1 || "",
+      address2: b.profile?.address2 || "",
+      city: b.profile?.city || "",
+      contact: b.profile?.contact || "",
+      aadhar: b.profile?.aadhar || "",
+      registeredBy: b.profile?.registeredBy || "Demo User",
+      notes: b.profile?.notes || ""
+    },
+    currentCase: b.currentCase || null,
+    history: Array.isArray(b.history) ? b.history.map(h => ({
+      date: h.date || "",
+      type: h.type || "",
+      category: h.category || "",
+      assistanceMode: h.assistanceMode || "",
+      investigationCompletedAt: h.investigationCompletedAt || "",
+      aidGrantedAt: h.aidGrantedAt || "",
+      amount: h.amount || "",
+      dealer: h.dealer || "",
+      note: h.note || "",
+      fundType: h.fundType || "",
+      voucherId: h.voucherId || ("VCH-" + Date.now() + "-" + Math.floor(Math.random() * 1000)),
+      voucherGeneratedBy: h.voucherGeneratedBy || "Legacy",
+      voucherGeneratedAt: h.voucherGeneratedAt || h.date || ""
+    })) : [],
+    auditLog: Array.isArray(b.auditLog) ? b.auditLog.map(a => ({
+      at: a.at || "",
+      by: a.by || "",
+      role: a.role || "",
+      action: a.action || "",
+      details: a.details || ""
+    })) : []
+  };
+}
+
+function saveAll(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(DAILY_BOOK_KEY, JSON.stringify(dailyBook));
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+function now(){ return new Date().toLocaleString(); }
+function hasPerm(key){ return !!(PERMISSIONS[session.role] && PERMISSIONS[session.role][key]); }
+function roleBadge(role){
+  return `<span class="role-pill" style="background:${ROLE_COLORS[role] || 'var(--gray)'};">${escapeHtml(ROLE_LABELS[role] || role)}</span>`;
+}
+function actorLabel(){
+  return `${ROLE_LABELS[session.role]} - ${session.userId}`;
+}
+
+function applySession(){
+  const role = document.getElementById("session_role").value;
+  const inputEl = document.getElementById("session_userId");
+  let userId = inputEl.value.trim();
+  const defaults = ["EMP-001", "MEM-001", "ADM-001"];
+  if(!userId || defaults.includes(userId)){
+    userId = defaultIdForRole(role);
+  }
+  session = { role, userId };
+  inputEl.value = userId;
+  document.getElementById("f_registeredBy").value = userId;
+  saveAll();
+  applySessionToUI();
+  rerenderCurrentView();
+}
+
+function applySessionToUI(){
+  const summary = document.getElementById("sessionSummary");
+  summary.innerHTML = `
+    <div><b>Logged in as:</b> ${roleBadge(session.role)} <span style="margin-left:8px;"><b>${escapeHtml(session.userId)}</b></span></div>
+    <div class="muted">Role control is now active. Every action gets stamped with user ID, role, and date/time.</div>
+  `;
+  document.getElementById("registerBtn").style.display = hasPerm("register") ? "" : "none";
+  renderPendingCounters();
+  renderFinanceActions();
+  renderDailyBook();
+}
+
+function getPendingCounts(){
+  let pendingInvestigation = 0;
+  let underInvestigation = 0;
+  let approvalPending = 0;
+
+  data.forEach(b => {
+    const c = b.currentCase;
+    if(!c) return;
+    if(c.status === "Pending" && !c.skipInvestigation) pendingInvestigation += 1;
+    if(c.status === "Under Investigation") underInvestigation += 1;
+    if(c.status === "Investigation Positive") approvalPending += 1;
+  });
+
+  return { pendingInvestigation, underInvestigation, approvalPending };
+}
+
+function renderPendingCounters(){
+  const box = document.getElementById("pendingCounters");
+  const note = document.getElementById("pendingNotice");
+  if(!box || !note) return;
+
+  const counts = getPendingCounts();
+  const activeType = currentDashboardFilter?.type || "";
+  const cards = [
+    `<div class="stat-card" onclick="filterByStatus('pending')" style="cursor:pointer; border-left:6px solid var(--orange); ${activeType === 'pending' ? 'box-shadow:0 0 0 3px rgba(253,126,20,0.18), var(--shadow); transform:translateY(-1px);' : ''}">
+      <div class="stat-number">${counts.pendingInvestigation}</div>
+      <div class="muted">Pending Investigation</div>
+    </div>`,
+    `<div class="stat-card" onclick="filterByStatus('under')" style="cursor:pointer; border-left:6px solid var(--blue); ${activeType === 'under' ? 'box-shadow:0 0 0 3px rgba(13,110,253,0.18), var(--shadow); transform:translateY(-1px);' : ''}">
+      <div class="stat-number">${counts.underInvestigation}</div>
+      <div class="muted">Under Investigation</div>
+    </div>`
+  ];
+
+  if(session.role === "admin") {
+    cards.push(`<div class="stat-card" onclick="filterByStatus('approval')" style="cursor:pointer; border-left:6px solid var(--red); ${activeType === 'approval' ? 'box-shadow:0 0 0 3px rgba(220,53,69,0.18), var(--shadow); transform:translateY(-1px);' : ''}">
+      <div class="stat-number">${counts.approvalPending}</div>
+      <div class="muted">Approval Pending</div>
+    </div>`);
+  }
+
+  box.innerHTML = cards.join("");
+
+  const notices = [];
+  if(counts.pendingInvestigation > 0) notices.push(`${counts.pendingInvestigation} case(s) are waiting for investigation.`);
+  if(session.role === "admin" && counts.approvalPending > 0) notices.push(`${counts.approvalPending} case(s) are waiting for admin approval.`);
+
+  if(notices.length){
+    note.style.display = "block";
+    note.innerHTML = `<b>Attention:</b> ${notices.join(" ")}`;
+  } else {
+    note.style.display = "none";
+    note.innerHTML = "";
+  }
+}
+
+function defaultIdForRole(role){
+  if(role === "admin") return "ADM-001";
+  if(role === "member") return "MEM-001";
+  return "EMP-001";
+}
+
+function stamp(){
+  return {
+    at: now(),
+    by: session.userId,
+    role: session.role
+  };
+}
+
+function addAudit(b, action, details){
+  const s = stamp();
+  b.auditLog.unshift({
+    at: s.at,
+    by: s.by,
+    role: ROLE_LABELS[s.role],
+    action,
+    details
+  });
+}
+
+function nextRef(prefix){
+  return `${prefix}-${Date.now()}`;
+}
+
+function sanitizeUserForReceipt(userId){
+  return String(userId || "USER").replace(/[^A-Za-z0-9]/g, "").toUpperCase() || "USER";
+}
+
+function getReceiptPrefixForFundType(fundType){
+  if(fundType === "Zakat Fund") return "RZ";
+  if(fundType === "Donation Fund") return "RD";
+  return "RC";
+}
+
+function loadReceiptCounters(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(RECEIPT_COUNTERS_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch(e){
+    return {};
+  }
+}
+
+function saveReceiptCounters(counters){
+  localStorage.setItem(RECEIPT_COUNTERS_KEY, JSON.stringify(counters || {}));
+}
+
+function nextReceiptNumber(fundType){
+  const prefix = getReceiptPrefixForFundType(fundType);
+  const userKey = sanitizeUserForReceipt(session.userId);
+  const year = new Date().getFullYear();
+  const counterKey = `${prefix}__${year}__${userKey}`;
+  const counters = loadReceiptCounters();
+  counters[counterKey] = Number(counters[counterKey] || 0) + 1;
+  saveReceiptCounters(counters);
+  return `${prefix}/${year}/${userKey}/${String(counters[counterKey]).padStart(4, "0")}`;
+}
+function loadVoucherCounters(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(VOUCHER_COUNTERS_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch(e){
+    return {};
+  }
+}
+
+function saveVoucherCounters(counters){
+  localStorage.setItem(VOUCHER_COUNTERS_KEY, JSON.stringify(counters || {}));
+}
+
+function getVoucherPrefixForFundType(fundType){
+  if(fundType === "Zakat Fund") return "VZ";
+  if(fundType === "Donation Fund") return "VD";
+  return "VC";
+}
+
+function nextVoucherNumber(fundType){
+  const prefix = getVoucherPrefixForFundType(fundType);
+  const userKey = sanitizeUserForReceipt(session.userId);
+  const year = new Date().getFullYear();
+  const counterKey = `${prefix}__${year}__${userKey}`;
+  const counters = loadVoucherCounters();
+  counters[counterKey] = Number(counters[counterKey] || 0) + 1;
+  saveVoucherCounters(counters);
+  return `${prefix}/${year}/${userKey}/${String(counters[counterKey]).padStart(4, "0")}`;
+}
+
+function addDailyBookEntry(type, referenceNo, name, amount, mode, note, extra = {}){
+  const s = stamp();
+  dailyBook.unshift({
+    id: nextRef("DB"),
+    type,
+    referenceNo,
+    name: name || "",
+    amount: amount || "",
+    mode: mode || "",
+    note: note || "",
+    by: s.by,
+    role: ROLE_LABELS[s.role],
+    at: s.at,
+    ...extra
+  });
+  saveAll();
+  renderDailyBook();
+}
+
+function renderFinanceActions(){
+  const el = document.getElementById("financeActions");
+  const buttons = [];
+
+  if(hasPerm("financeMember")){
+    buttons.push(`<button class="green" onclick="openFinanceModal('donation')">Receive Funds<br>from Donors</button>`);
+    buttons.push(`<button class="blue" onclick="openFinanceModal('receipt')">Generate Receipt<br>for Donations</button>`);
+    buttons.push(`<button class="purple" onclick="openFinanceModal('dental')">Dental Clinic<br>Collection</button>`);
+  }
+  if(hasPerm("financeAdmin")){
+    buttons.push(`<button class="orange" onclick="openFinanceModal('wages')">Distribute<br>Wages</button>`);
+    buttons.push(`<button class="teal" onclick="openFinanceModal('dealer')">Dealer Payment<br>Record</button>`);
+    buttons.push(`<button class="gray" onclick="openFinanceModal('manual')">Manual Daily Book<br>Entry</button>`);
+  }
+
+  el.innerHTML = buttons.length ? buttons.join("") : '<div class="muted">No finance actions available for this role.</div>';
+}
+
+function toggleDailyBook(){
+  isDailyBookVisible = !isDailyBookVisible;
+  document.getElementById("dailyBookWrap").classList.toggle("hidden", !isDailyBookVisible);
+  document.getElementById("dailyToggleText").textContent = isDailyBookVisible ? "Hide Daily Activity Book" : "Show Daily Activity Book";
+  renderDailyBook();
+}
+
+function getDailyBookDateValue(entry){
+  if(entry.entryDate) return entry.entryDate;
+  const stamp = entry.at || "";
+  const parsed = new Date(stamp);
+  if(!isNaN(parsed)) return parsed.toISOString().slice(0,10);
+  const m = stamp.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m){
+    const dd = String(m[1]).padStart(2, "0");
+    const mm = String(m[2]).padStart(2, "0");
+    const yyyy = m[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return "";
+}
+
+function filterDailyBookToday(){
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById("dailyFromDate").value = today;
+  document.getElementById("dailyToDate").value = today;
+  renderDailyBook();
+}
+
+function clearDailyBookFilter(){
+  document.getElementById("dailyFromDate").value = "";
+  document.getElementById("dailyToDate").value = "";
+  renderDailyBook();
+}
+
+function getStatusFilteredList(type){
+  if(type === "pending"){
+    return data.filter(b => b.currentCase && b.currentCase.status === "Pending" && !b.currentCase.skipInvestigation);
+  }
+  if(type === "under"){
+    return data.filter(b => b.currentCase && b.currentCase.status === "Under Investigation");
+  }
+  if(type === "approval"){
+    return data.filter(b => b.currentCase && b.currentCase.status === "Investigation Positive");
+  }
+  return data;
+}
+
+function getDashboardFilterLabel(type, count){
+  if(type === "pending") return `Showing: Pending Investigation (${count} case${count === 1 ? "" : "s"})`;
+  if(type === "under") return `Showing: Under Investigation (${count} case${count === 1 ? "" : "s"})`;
+  if(type === "approval") return `Showing: Approval Pending (${count} case${count === 1 ? "" : "s"})`;
+  return "";
+}
+
+function filterByStatus(type){
+  const filtered = getStatusFilteredList(type);
+  currentDashboardFilter = {
+    type,
+    label: getDashboardFilterLabel(type, filtered.length)
+  };
+  currentRenderedIds = filtered.map(d => d.id);
+  render(filtered);
+}
+
+function clearDashboardFilter(){
+  currentDashboardFilter = null;
+  currentRenderedIds = null;
+  render(data);
+}
+
+function buildReceiptDataFromEntry(entry){
+  if(!entry) return null;
+  if(entry.printableType === "receipt" && entry.printableData) return entry.printableData;
+  if(["Funds Received", "Donation Receipt", "Dental Collection"].includes(entry.type)){
+    return {
+      id: entry.referenceNo || "-",
+      date: entry.at || "-",
+      party: entry.name || "-",
+      amount: entry.amount || "0.00",
+      mode: entry.mode || "-",
+      fundType: entry.fundType || "",
+      receivedBy: `${entry.role || ""} - ${entry.by || ""}`.trim().replace(/^ - | - $/g, ""),
+      note: entry.note || ""
+    };
+  }
+  return null;
+}
+
+function buildVoucherDataFromEntry(entry){
+  if(!entry) return null;
+  if(entry.printableType === "voucher" && entry.printableData) return entry.printableData;
+  if(entry.type === "Grant Funds"){
+    return {
+      id: entry.referenceNo || "-",
+      date: entry.at || "-",
+      generatedBy: `${entry.role || ""} - ${entry.by || ""}`.trim().replace(/^ - | - $/g, ""),
+      dealer: entry.dealer || entry.name || "-",
+      type: entry.aidCategory || entry.note || "-",
+      fundType: entry.fundType || "-",
+      amount: entry.amount || "0.00",
+      name: entry.name || "-"
+    };
+  }
+  return null;
+}
+
+function isDaybookPrintable(entry){
+  return !!(buildReceiptDataFromEntry(entry) || buildVoucherDataFromEntry(entry));
+}
+
+function openDaybookPrintable(entryId){
+  const entry = dailyBook.find(x => x.id === entryId);
+  if(!entry) return;
+  const receiptData = buildReceiptDataFromEntry(entry);
+  const voucherData = buildVoucherDataFromEntry(entry);
+  if(receiptData){ openReceiptModal(receiptData); return; }
+  if(voucherData){
+    document.getElementById("v_id").textContent = voucherData.id || "-";
+    document.getElementById("v_date").textContent = voucherData.date || "-";
+    document.getElementById("v_generatedBy").textContent = voucherData.generatedBy || "-";
+    document.getElementById("v_dealer").textContent = voucherData.dealer || "-";
+    document.getElementById("v_type").textContent = voucherData.type || "-";
+    document.getElementById("v_fundType").textContent = voucherData.fundType || "-";
+    document.getElementById("v_amount").textContent = formatAmount(voucherData.amount || 0);
+    document.getElementById("v_words").textContent = numberToWords(voucherData.amount || 0);
+    document.getElementById("v_name").textContent = voucherData.name || "-";
+    document.getElementById("voucherModal").classList.add("show");
+  }
+}
+
+function buildReceiptDataFromEntry(entry){
+  if(!entry) return null;
+  if(entry.printableType === "receipt" && entry.printableData) return entry.printableData;
+  if(["Funds Received", "Donation Receipt", "Dental Collection"].includes(entry.type)){
+    return {
+      id: entry.referenceNo || "-",
+      date: entry.at || "-",
+      party: entry.name || "-",
+      amount: entry.amount || "0.00",
+      mode: entry.mode || "-",
+      fundType: entry.fundType || "",
+      receivedBy: `${entry.role || ""} - ${entry.by || ""}`.trim().replace(/^ - | - $/g, ""),
+      note: entry.note || ""
+    };
+  }
+  return null;
+}
+
+function buildVoucherDataFromEntry(entry){
+  if(!entry) return null;
+  if(entry.printableType === "voucher" && entry.printableData) return entry.printableData;
+  if(entry.type === "Grant Funds"){
+    return {
+      id: entry.referenceNo || "-",
+      date: entry.at || "-",
+      generatedBy: `${entry.role || ""} - ${entry.by || ""}`.trim().replace(/^ - | - $/g, ""),
+      dealer: entry.dealer || entry.name || "-",
+      type: entry.aidCategory || entry.note || "-",
+      fundType: entry.fundType || "-",
+      amount: entry.amount || "0.00",
+      name: entry.name || "-"
+    };
+  }
+  return null;
+}
+
+function isDaybookPrintable(entry){
+  return !!(buildReceiptDataFromEntry(entry) || buildVoucherDataFromEntry(entry));
+}
+
+function openDaybookPrintable(entryId){
+  const entry = dailyBook.find(x => x.id === entryId);
+  if(!entry) return;
+  const receiptData = buildReceiptDataFromEntry(entry);
+  const voucherData = buildVoucherDataFromEntry(entry);
+
+  if(receiptData){
+    openReceiptModal(receiptData);
+    return;
+  }
+
+  if(voucherData){
+    document.getElementById("v_id").textContent = voucherData.id || "-";
+    document.getElementById("v_date").textContent = voucherData.date || "-";
+    document.getElementById("v_generatedBy").textContent = voucherData.generatedBy || "-";
+    document.getElementById("v_dealer").textContent = voucherData.dealer || "-";
+    document.getElementById("v_type").textContent = voucherData.type || "-";
+    document.getElementById("v_fundType").textContent = voucherData.fundType || "-";
+    document.getElementById("v_amount").textContent = formatAmount(voucherData.amount || 0);
+    document.getElementById("v_words").textContent = numberToWords(voucherData.amount || 0);
+    document.getElementById("v_name").textContent = voucherData.name || "-";
+    document.getElementById("voucherModal").classList.add("show");
+  }
+}
+
+function renderDailyBook(){
+  const wrap = document.getElementById("dailyBookWrap");
+  if(!wrap) return;
+  if(!dailyBook.length){ wrap.innerHTML = '<div class="empty-state">No daily activity entries yet</div>'; return; }
+  const fromDate = document.getElementById("dailyFromDate")?.value || "";
+  const toDate = document.getElementById("dailyToDate")?.value || "";
+  const filteredEntries = dailyBook.filter(entry => {
+    const entryDate = getDailyBookDateValue(entry);
+    if(fromDate && (!entryDate || entryDate < fromDate)) return false;
+    if(toDate && (!entryDate || entryDate > toDate)) return false;
+    return true;
+  });
+  if(!filteredEntries.length){ wrap.innerHTML = '<div class="empty-state">No daily activity entries for selected date range</div>'; return; }
+  let stats = { total: filteredEntries.length, inflow: 0, outflow: 0, today: 0 };
+  const todayStr = new Date().toISOString().slice(0,10);
+  filteredEntries.forEach(entry => {
+    const num = Number(entry.amount || 0);
+    if(["Funds Received", "Donation Receipt", "Dental Collection"].includes(entry.type)) stats.inflow += num;
+    if(["Grant Funds", "Wages Distribution", "Dealer Payment"].includes(entry.type)) stats.outflow += num;
+    if(getDailyBookDateValue(entry) === todayStr) stats.today += 1;
+  });
+  let html = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-number">${stats.total}</div><div class="muted">Entries</div></div>
+      <div class="stat-card"><div class="stat-number">₹ ${formatAmount(stats.inflow)}</div><div class="muted">Inflow</div></div>
+      <div class="stat-card"><div class="stat-number">₹ ${formatAmount(stats.outflow)}</div><div class="muted">Outflow</div></div>
+      <div class="stat-card"><div class="stat-number">${stats.today}</div><div class="muted">Today</div></div>
+    </div>
+  `;
+  filteredEntries.slice(0, 100).forEach(entry => {
+    const canOpen = isDaybookPrintable(entry);
+    html += `
+      <div class="daily-item" ${canOpen ? `onclick="openDaybookPrintable('${entry.id}')" style="cursor:pointer;"` : ""}>
+        <div><b>${escapeHtml(entry.type)}</b> ${entry.referenceNo ? `— ${escapeHtml(entry.referenceNo)}` : ""}</div>
+        ${entry.name ? `<div>Name / Party: ${escapeHtml(entry.name)}</div>` : ""}
+        ${entry.amount ? `<div>Amount: ₹ ${escapeHtml(formatAmount(entry.amount))}</div>` : ""}
+        ${entry.mode ? `<div>Mode: ${escapeHtml(entry.mode)}</div>` : ""}
+        ${entry.fundType ? `<div>Fund Type: ${escapeHtml(entry.fundType)}</div>` : ""}
+        ${entry.note ? `<div>Note: ${escapeHtml(entry.note)}</div>` : ""}
+        <div class="muted">By ${escapeHtml(entry.by)} (${escapeHtml(entry.role)}) on ${escapeHtml(entry.at)}</div>
+        ${canOpen ? `<div class="inline-actions"><button class="blue" onclick="event.stopPropagation(); openDaybookPrintable('${entry.id}')">Open ${buildReceiptDataFromEntry(entry) ? 'Receipt' : 'Voucher'}</button></div>` : ""}
+      </div>
+    `;
+  });
+  wrap.innerHTML = html;
+}
+
+function openFinanceModal(mode){
+  financeMode = mode;
+  document.getElementById("m_party").value = "";
+  document.getElementById("m_amount").value = "";
+  document.getElementById("m_note").value = "";
+  document.getElementById("m_mode").value = "";
+  document.getElementById("m_fundType").value = "";
+  const titleMap = {
+    donation: "Receive Funds from Donors",
+    receipt: "Generate Donation Receipt",
+    dental: "Dental Clinic Collection",
+    wages: "Distribute Wages",
+    dealer: "Dealer Payment Record",
+    manual: "Manual Daily Activity Book Entry"
+  };
+  document.getElementById("financeTitle").textContent = titleMap[mode] || "Finance Entry";
+  document.getElementById("modeWrap").style.display = mode === "manual" ? "none" : "";
+  document.getElementById("fundTypeWrap").style.display = (mode === "donation" || mode === "receipt") ? "" : "none";
+  document.getElementById("financeModal").classList.add("show");
+}
+
+function closeFinanceModal(){
+  document.getElementById("financeModal").classList.remove("show");
+  financeMode = "";
+}
+
+document.getElementById("m_amount").addEventListener("input", function(e){
+  let value = e.target.value.replace(/[^0-9.]/g, "");
+  const firstDot = value.indexOf(".");
+  if(firstDot !== -1){
+    value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, "");
+  }
+  e.target.value = value;
+});
+
+function saveFinanceEntry(generateReceipt = false){
+  if(!financeMode) return;
+  const party = document.getElementById("m_party").value.trim();
+  const amountRaw = document.getElementById("m_amount").value.trim();
+  const note = document.getElementById("m_note").value.trim();
+  const mode = document.getElementById("m_mode").value;
+  const fundType = document.getElementById("m_fundType").value;
+  const amountCheck = normalizeAidAmount(amountRaw);
+
+  if(financeMode !== "manual" && !amountCheck.ok){
+    alert(amountCheck.message);
+    return;
+  }
+
+  const typeMap = {
+    donation: "Funds Received",
+    receipt: "Donation Receipt",
+    dental: "Dental Collection",
+    wages: "Wages Distribution",
+    dealer: "Dealer Payment",
+    manual: "Manual Entry"
+  };
+
+  const refPrefixMap = {
+    donation: "DON",
+    receipt: "RCP",
+    dental: "DCL",
+    wages: "WAG",
+    dealer: "DPR",
+    manual: "MAN"
+  };
+
+  if(!party && financeMode !== "manual"){
+    alert("Enter name / party");
+    return;
+  }
+
+  if((financeMode === "donation" || financeMode === "receipt") && !fundType){
+    alert("Select fund type");
+    return;
+  }
+
+  const referenceNo = (financeMode === "donation" || financeMode === "receipt") ? nextReceiptNumber(fundType) : nextRef(refPrefixMap[financeMode] || "REF");
+  const amountValue = financeMode === "manual" ? "" : amountCheck.fixedValue;
+  const finalNote = [note].filter(Boolean).join(" | ");
+  const entryDateTime = now();
+  const printableReceiptData = {
+    id: referenceNo,
+    date: entryDateTime,
+    party,
+    amount: amountValue,
+    mode,
+    fundType,
+    receivedBy: actorLabel(),
+    note: finalNote
+  };
+
+  addDailyBookEntry(
+    typeMap[financeMode] || "Entry",
+    referenceNo,
+    party || "Manual Entry",
+    amountValue,
+    financeMode === "manual" ? "" : mode,
+    finalNote,
+    {
+      fundType: fundType || "",
+      entryDate: new Date().toISOString().slice(0,10),
+      printableType: (financeMode === "donation" || financeMode === "receipt") ? "receipt" : "",
+      printableData: (financeMode === "donation" || financeMode === "receipt") ? printableReceiptData : null
+    }
+  );
+
+  if(generateReceipt && (financeMode === "donation" || financeMode === "receipt")){
+    openReceiptModal(printableReceiptData);
+  }
+
+  closeFinanceModal();
+}
+
+function populateAidTypeOptions(mode){
+  const select = document.getElementById("a_aidType");
+  if(!select) return;
+  const types = (mode === "regular" || mode === "continueRegular") ? REGULAR_AID_TYPES : ONE_TIME_AID_TYPES;
+  select.innerHTML = '<option value="">Select Aid Type</option>' + types.map(type => `<option>${type}</option>`).join("");
+  select.value = "";
+}
+
+function openRegisterForm(){
+  if(!hasPerm("register")) return alert("Current role cannot register beneficiaries");
+  editingId = null;
+  pendingPhotoData = null;
+  document.getElementById("formTitle").textContent = "Register Beneficiary";
+  resetForm();
+  updatePhotoPreview("");
+  document.getElementById("f_registeredBy").value = session.userId;
+  document.getElementById("formModal").classList.add("show");
+}
+
+function openEditForm(id){
+  if(!hasPerm("editProfile")) return alert("Current role cannot edit profile");
+  const b = find(id);
+  if(!b) return;
+  editingId = id;
+  pendingPhotoData = null;
+  document.getElementById("formTitle").textContent = "Edit Beneficiary Profile";
+  document.getElementById("f_name").value = b.name || "";
+  document.getElementById("f_address1").value = b.profile?.address1 || "";
+  document.getElementById("f_address2").value = b.profile?.address2 || "";
+  document.getElementById("f_city").value = b.profile?.city || "";
+  document.getElementById("f_contact").value = b.profile?.contact || "";
+  document.getElementById("f_postcode").value = b.profile?.postcode || "";
+  document.getElementById("f_digipin").value = b.profile?.digipin || "";
+  document.getElementById("f_aadhar").value = formatAadharForDisplay(b.profile?.aadhar || "");
+  document.getElementById("f_photo").value = "";
+  updatePhotoPreview(b.photo || "");
+  document.getElementById("f_age").value = b.profile?.age || "";
+  document.getElementById("f_gender").value = b.profile?.gender || "";
+  document.getElementById("f_maritalStatus").value = b.profile?.maritalStatus || "";
+  document.getElementById("f_helpFor").value = b.profile?.helpFor || "Self";
+  document.getElementById("f_relationType").value = b.profile?.relationType || "";
+  document.getElementById("f_relationName").value = b.profile?.relationName || "";
+  document.getElementById("f_incomeSource").value = b.profile?.incomeSource || "";
+  document.getElementById("f_monthlyIncome").value = b.profile?.monthlyIncome || "";
+  document.getElementById("f_familyMembers").value = b.profile?.familyMembers || "";
+  document.getElementById("f_earningMembers").value = b.profile?.earningMembers || "";
+  document.getElementById("f_registeredBy").value = session.userId;
+  document.getElementById("f_notes").value = b.profile?.notes || "";
+  toggleRelationField();
+  document.getElementById("formModal").classList.add("show");
+}
+
+function closeForm(){ document.getElementById("formModal").classList.remove("show"); }
+
+function resetForm(){
+  document.getElementById("f_name").value = "";
+  document.getElementById("f_address1").value = "";
+  document.getElementById("f_address2").value = "";
+  document.getElementById("f_city").value = "";
+  document.getElementById("f_contact").value = "";
+  document.getElementById("f_postcode").value = "";
+  document.getElementById("f_digipin").value = "";
+  document.getElementById("f_aadhar").value = "";
+  document.getElementById("f_photo").value = "";
+  document.getElementById("f_age").value = "";
+  document.getElementById("f_gender").value = "";
+  document.getElementById("f_maritalStatus").value = "";
+  document.getElementById("f_helpFor").value = "Self";
+  document.getElementById("f_relationType").value = "";
+  document.getElementById("f_relationName").value = "";
+  document.getElementById("f_incomeSource").value = "";
+  document.getElementById("f_monthlyIncome").value = "";
+  document.getElementById("f_familyMembers").value = "";
+  document.getElementById("f_earningMembers").value = "";
+  document.getElementById("f_registeredBy").value = session.userId;
+  document.getElementById("f_notes").value = "";
+  document.getElementById("duplicateWarning").innerHTML = "";
+  updatePhotoPreview("");
+  toggleRelationField();
+}
+
+function toggleRelationField(){
+  const helpFor = document.getElementById("f_helpFor").value;
+  const wrap = document.getElementById("relationWrap");
+  const relationType = document.getElementById("f_relationType");
+  const relationName = document.getElementById("f_relationName");
+  const relationLabel = document.getElementById("relationLabel");
+
+  if(helpFor === "Self"){
+    wrap.classList.add("hidden");
+    relationType.classList.add("hidden");
+    relationName.classList.remove("hidden");
+    relationLabel.textContent = "Relative / Neighbour Name";
+    relationType.value = "";
+    relationName.value = "";
+    relationName.placeholder = "Enter relative / neighbour name";
+    return;
+  }
+
+  wrap.classList.remove("hidden");
+
+  if(helpFor === "Relative"){
+    relationLabel.textContent = "Relation + Name";
+    relationType.classList.remove("hidden");
+    relationName.classList.remove("hidden");
+    relationName.placeholder = relationType.value === "Other" ? "Enter relation / name" : "Enter relative name";
+  } else {
+    relationLabel.textContent = "Neighbour Name";
+    relationType.classList.add("hidden");
+    relationType.value = "";
+    relationName.classList.remove("hidden");
+    relationName.placeholder = "Enter neighbour name";
+  }
+}
+
+function toggleOtherRelationField(){
+  const relationType = document.getElementById("f_relationType").value;
+  const relationName = document.getElementById("f_relationName");
+  relationName.placeholder = relationType === "Other" ? "Enter relation / name" : "Enter relative name";
+}
+
+document.getElementById("f_contact").addEventListener("input", function(e){
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+  updateDuplicateWarnings();
+});
+
+document.getElementById("f_postcode").addEventListener("input", function(e){
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+});
+
+document.getElementById("f_aadhar").addEventListener("input", function(e){
+  e.target.value = formatAadharForDisplay(e.target.value);
+  updateDuplicateWarnings();
+});
+
+document.getElementById("a_amount").addEventListener("input", function(e){
+  let value = e.target.value.replace(/[^0-9.]/g, "");
+  const firstDot = value.indexOf(".");
+  if(firstDot !== -1){
+    value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, "");
+  }
+  e.target.value = value;
+});
+
+function formatAadharForDisplay(value){
+  let digits = String(value || "").replace(/\D/g, "").slice(0, 12);
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+}
+
+function updatePhotoPreview(src){
+  const preview = document.getElementById("photoPreview");
+  const uploadBox = document.getElementById("photoUploadBox");
+  if(src){
+    preview.src = src;
+    preview.style.display = "block";
+    uploadBox.textContent = "📷 Change photo";
+  } else {
+    preview.removeAttribute("src");
+    preview.style.display = "none";
+    uploadBox.textContent = "📷 Tap to upload photo";
+  }
+}
+
+function triggerPhotoUpload(){ document.getElementById("f_photo").click(); }
+
+document.getElementById("f_photo").addEventListener("change", async function(e){
+  const file = e.target.files[0];
+  if(!file){
+    pendingPhotoData = null;
+    if(editingId){
+      const b = find(editingId);
+      updatePhotoPreview(b?.photo || "");
+    } else {
+      updatePhotoPreview("");
+    }
+    return;
+  }
+  try {
+    pendingPhotoData = await compressImage(file);
+    updatePhotoPreview(pendingPhotoData);
+  } catch (err){
+    alert("Unable to process photo");
+    pendingPhotoData = null;
+  }
+});
+
+async function saveProfile(){
+  const name = document.getElementById("f_name").value.trim();
+  const age = document.getElementById("f_age").value.trim();
+  const gender = document.getElementById("f_gender").value;
+  const maritalStatus = document.getElementById("f_maritalStatus").value;
+  const helpFor = document.getElementById("f_helpFor").value;
+  const relationType = document.getElementById("f_relationType").value;
+  const relationName = document.getElementById("f_relationName").value.trim();
+  const address1 = document.getElementById("f_address1").value.trim();
+  const address2 = document.getElementById("f_address2").value.trim();
+  const city = document.getElementById("f_city").value.trim();
+  const contact = document.getElementById("f_contact").value.replace(/\D/g, "").trim();
+  const postcode = document.getElementById("f_postcode").value.replace(/\D/g, "").trim();
+  const digipin = document.getElementById("f_digipin").value.trim();
+  const aadhar = document.getElementById("f_aadhar").value.replace(/\D/g, "").trim();
+  const incomeSource = document.getElementById("f_incomeSource").value.trim();
+  const monthlyIncome = document.getElementById("f_monthlyIncome").value.trim();
+  const familyMembers = document.getElementById("f_familyMembers").value.trim();
+  const earningMembers = document.getElementById("f_earningMembers").value.trim();
+  const registeredBy = session.userId;
+  const notes = document.getElementById("f_notes").value.trim();
+
+  if(!name) return alert("Enter name");
+  if(!editingId && !pendingPhotoData) return alert("Upload photo");
+  if(helpFor === "Relative" && !relationType) return alert("Select relation");
+  if(helpFor !== "Self" && !relationName) return alert("Enter relative / neighbour name");
+  if(contact && contact.length !== 10) return alert("Contact number must be 10 digits");
+  if(aadhar && aadhar.length !== 12) return alert("Aadhar number must be 12 digits");
+
+  if(editingId){
+    const b = find(editingId);
+    if(!b) return;
+    b.name = name;
+    if(pendingPhotoData) b.photo = pendingPhotoData;
+    b.profile = { age, gender, maritalStatus, helpFor, relationType, relationName, address1, address2, city, contact, postcode, digipin, aadhar, incomeSource, monthlyIncome, familyMembers, earningMembers, registeredBy, notes };
+    addAudit(b, "Profile Updated", "Beneficiary profile edited");
+    addDailyBookEntry("Profile Updated", b.id, name, "", "", "Beneficiary profile updated", { entryDate: new Date().toISOString().slice(0,10) });
+  } else {
+    const newBeneficiary = {
+      id: "TAIBA-" + Date.now(),
+      name,
+      photo: pendingPhotoData,
+      profile: { age, gender, maritalStatus, helpFor, relationType, relationName, address1, address2, city, contact, postcode, digipin, aadhar, incomeSource, monthlyIncome, familyMembers, earningMembers, registeredBy, notes },
+      currentCase: { status: "Pending", registeredAt: now(), investigationCompletedAt: "", approvedAt: "", assistanceMode: "", aidCategory: "", aidNote: "", skipInvestigation: false },
+      history: [],
+      auditLog: []
+    };
+    addAudit(newBeneficiary, "Beneficiary Registered", "New beneficiary profile created");
+    data.push(newBeneficiary);
+    addDailyBookEntry("Beneficiary Registered", newBeneficiary.id, name, "", "", "New beneficiary profile created", { entryDate: new Date().toISOString().slice(0,10) });
+  }
+
+  saveAll();
+  closeForm();
+  rerenderCurrentView();
+}
+
+function openAidModal(id, mode){
+  if(!hasPerm("grantAid")) return alert("Only Admin can save aid after approval");
+  currentAidId = id;
+  currentAidMode = mode;
+  populateAidTypeOptions(mode);
+  document.getElementById("a_amount").value = "";
+  document.getElementById("a_dealer").value = "";
+  document.getElementById("a_fundType").value = "";
+  document.getElementById("a_note").value = "";
+  document.getElementById("aidTitle").textContent = mode === "continueRegular" ? "Continue Regular Aid" : (mode === "regular" ? "Grant Regular Aid" : "Grant Aid");
+  document.getElementById("aidModal").classList.add("show");
+}
+
+function closeAidModal(){
+  document.getElementById("aidModal").classList.remove("show");
+  currentAidId = null;
+  currentAidMode = null;
+}
+
+function normalizeAidAmount(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return { ok: false, message: "Amount is required." };
+  if (!/^\d+(\.\d{1,2})?$/.test(raw)) return { ok: false, message: "Enter a valid amount (up to 2 decimal places)." };
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return { ok: false, message: "Amount must be greater than 0." };
+  return { ok: true, numberValue: num, fixedValue: num.toFixed(2) };
+}
+
+function saveAid(){
+  const b = find(currentAidId);
+  if(!b) return;
+  const category = document.getElementById("a_aidType").value;
+  const amount = document.getElementById("a_amount").value.trim();
+  const amountCheck = normalizeAidAmount(amount);
+  if (!amountCheck.ok) {
+    alert(amountCheck.message);
+    return;
+  }
+  const fundType = document.getElementById("a_fundType").value;
+  const dealer = document.getElementById("a_dealer").value.trim();
+  const note = document.getElementById("a_note").value.trim();
+
+  if(!category) return alert("Select aid type");
+  if(!fundType) return alert("Select fund source");
+
+  let type = "One-Time Aid";
+  let assistanceMode = b.currentCase?.assistanceMode || "New Assistance";
+  let investigationCompletedAt = b.currentCase?.investigationCompletedAt || "";
+
+  if(currentAidMode === "regular"){
+    type = "Regular Aid";
+  } else if(currentAidMode === "continueRegular"){
+    type = "Continued Regular Aid";
+    assistanceMode = "Continue Regular Aid";
+    investigationCompletedAt = "";
+  }
+
+  const voucherId = nextVoucherNumber(fundType);
+  const actionTime = now();
+
+  b.history.unshift({
+    date: actionTime,
+    type,
+    category,
+    assistanceMode,
+    investigationCompletedAt,
+    aidGrantedAt: actionTime,
+    amount: amountCheck.fixedValue,
+    dealer,
+    note,
+    fundType,
+    voucherId,
+    voucherGeneratedBy: actorLabel(),
+    voucherGeneratedAt: actionTime
+  });
+
+  addAudit(b, "Aid Saved", `${type} - ${category} - ${fundType} - ₹ ${amountCheck.fixedValue}`);
+  addDailyBookEntry(
+    "Grant Funds",
+    voucherId,
+    b.name,
+    amountCheck.fixedValue,
+    "",
+    `${type}${dealer ? " / " + dealer : ""}${note ? " / " + note : ""}`,
+    {
+      fundType,
+      aidCategory: category || "-",
+      dealer: dealer || "-",
+      entryDate: new Date().toISOString().slice(0,10),
+      printableType: "voucher",
+      printableData: {
+        id: voucherId,
+        date: actionTime,
+        generatedBy: actorLabel(),
+        dealer: dealer || "-",
+        type: category || "-",
+        fundType: fundType || "-",
+        amount: amountCheck.fixedValue,
+        name: b.name || "-"
+      }
+    }
+  );
+
+  if(currentAidMode !== "continueRegular"){
+    b.currentCase = null;
+  }
+
+  saveAll();
+  closeAidModal();
+  rerenderCurrentView();
+}
+
+function showAll(){
+  currentDashboardFilter = null;
+  currentRenderedIds = null;
+  render(data);
+}
+
+function searchData(){
+  currentDashboardFilter = null;
+  const k = document.getElementById("search").value.toLowerCase().trim();
+  const filtered = data.filter(d => (d.name || "").toLowerCase().includes(k) || (d.id || "").toLowerCase().includes(k));
+  currentRenderedIds = filtered.map(d => d.id);
+  render(filtered);
+}
+
+function render(list){
+  let html = "";
+  if(currentDashboardFilter){
+    html += `
+      <div class="box">
+        <div><b>${escapeHtml(currentDashboardFilter.label || "")}</b></div>
+        <div class="action-grid">
+          <button class="gray" onclick="clearDashboardFilter()">Clear Filter</button>
+        </div>
+      </div>
+    `;
+  }
+  if(!list.length){
+    html += '<div class="card empty-state">No matching beneficiary found</div>';
+  }
+
+  list.forEach(b => {
+    html += `
+    <div class="card">
+      <div class="beneficiary-head">
+        ${b.photo ? `<img class="profile-photo" src="${b.photo}" alt="Beneficiary photo">` : ""}
+        <div class="beneficiary-main">
+          <div class="beneficiary-name">${escapeHtml(b.name)}</div>
+          <div class="beneficiary-id">${escapeHtml(b.id)}</div>
+        </div>
+      </div>
+
+      <div class="profile-box">
+        <div class="section-title">Profile</div>
+        <div class="meta-grid">
+          <div class="meta-item"><b>Age:</b> ${escapeHtml(b.profile?.age || "-")}</div>
+          <div class="meta-item"><b>Gender:</b> ${escapeHtml(b.profile?.gender || "-")}</div>
+          <div class="meta-item"><b>Address Line 1:</b> ${escapeHtml(b.profile?.address1 || "-")}</div>
+          <div class="meta-item"><b>Address Line 2:</b> ${escapeHtml(b.profile?.address2 || "-")}</div>
+          <div class="meta-item"><b>City / Village:</b> ${escapeHtml(b.profile?.city || "-")}</div>
+          <div class="meta-item"><b>Contact Number:</b> ${escapeHtml(b.profile?.contact || "-")}</div>
+          <div class="meta-item"><b>Postcode:</b> ${escapeHtml(b.profile?.postcode || "-")}</div>
+          <div class="meta-item"><b>DIGIPIN:</b> ${escapeHtml(b.profile?.digipin || "-")}</div>
+          <div class="meta-item"><b>Aadhar Card Number:</b> ${escapeHtml(formatAadharForDisplay(b.profile?.aadhar || "-"))}</div>
+          <div class="meta-item"><b>Marital Status:</b> ${escapeHtml(b.profile?.maritalStatus || "-")}</div>
+          <div class="meta-item"><b>Help Required For:</b> ${escapeHtml(b.profile?.helpFor || "-")}</div>
+          ${b.profile?.helpFor === "Relative" ? `<div class="meta-item"><b>Relation:</b> ${escapeHtml(b.profile?.relationType || "-")}</div>` : ""}
+          ${b.profile?.helpFor && b.profile.helpFor !== "Self" ? `<div class="meta-item"><b>${b.profile?.helpFor === "Relative" ? "Relative Name" : "Neighbour Name"}:</b> ${escapeHtml(b.profile?.relationName || "-")}</div>` : ""}
+          <div class="meta-item"><b>Income Source:</b> ${escapeHtml(b.profile?.incomeSource || "-")}</div>
+          <div class="meta-item"><b>Earnings / Month:</b> ${escapeHtml(b.profile?.monthlyIncome || "-")}</div>
+          <div class="meta-item"><b>Total Family Members:</b> ${escapeHtml(b.profile?.familyMembers || "-")}</div>
+          <div class="meta-item"><b>Earning Members:</b> ${escapeHtml(b.profile?.earningMembers || "-")}</div>
+          <div class="meta-item"><b>Last Edited By:</b> ${escapeHtml((b.auditLog[0]?.by) || b.profile?.registeredBy || "-")}</div>
+        </div>
+        ${b.profile?.notes ? `<div class="muted">Notes: ${escapeHtml(b.profile.notes)}</div>` : ""}
+        ${hasPerm("editProfile") ? `<div class="inline-actions"><button class="gray" onclick="openEditForm('${b.id}')">Edit Profile</button></div>` : ""}
+      </div>
+
+      ${renderCurrent(b)}
+      ${renderHistory(b)}
+      ${renderAudit(b)}
+    </div>`;
+  });
+
+  document.getElementById("output").innerHTML = html;
+}
+
+function renderCurrent(b){
+  const { duplicateMobile, duplicateAadhar } = checkDuplicates(b.profile?.contact, b.profile?.aadhar, b.id);
+  let warningHTML = "";
+  if(duplicateMobile) warningHTML += `<div style="color:#b58900; font-weight:600;">⚠️ Duplicate Mobile</div>`;
+  if(duplicateAadhar) warningHTML += `<div style="color:#dc3545; font-weight:600;">⚠️ Duplicate Aadhar</div>`;
+
+  if(!b.currentCase){
+    const lastRegular = b.history.find(h => h.type === "Regular Aid" || h.type === "Continued Regular Aid");
+    return `
+      <div class="case-box">
+        ${warningHTML}
+        <div><b>Status:</b> No active case</div>
+        <div class="inline-actions">
+          ${lastRegular && hasPerm("grantAid") ? `<button class="green" onclick="continueRegular('${b.id}')">Continue Regular Aid</button>` : ""}
+          ${hasPerm("grantAid") ? `<button class="purple" onclick="newCase('${b.id}')">Add New Assistance</button>` : ""}
+        </div>
+      </div>`;
+  }
+
+  const c = b.currentCase;
+  return `
+    <div class="case-box ${c.status === 'Investigation Negative' ? 'negative-box' : ''}">
+      ${warningHTML}
+      <div><b>Status:</b> ${escapeHtml(c.status)}</div>
+      ${c.status === "Pending" && !c.skipInvestigation ? `<div class="muted"><b>Pending Investigation</b> — waiting to be started.</div>` : ""}
+      ${c.status === "Investigation Positive" && session.role === "admin" ? `<div class="muted"><b>Approval Pending</b> — admin action required.</div>` : ""}
+      <div class="muted">Registered: ${escapeHtml(c.registeredAt || "-")}</div>
+      ${c.investigationCompletedAt ? `<div class="muted">Investigation Completed: ${escapeHtml(c.investigationCompletedAt)}</div>` : ""}
+      ${c.approvedAt ? `<div class="muted">Approved: ${escapeHtml(c.approvedAt)}</div>` : ""}
+      ${c.assistanceMode ? `<div class="muted">Case Type: ${escapeHtml(c.assistanceMode)}</div>` : ""}
+      <div class="inline-actions">
+        ${c.status==="Pending" && !c.skipInvestigation && hasPerm("investigate") ? `<button class="blue" onclick="start('${b.id}')">Start Investigation</button>` : ""}
+        ${c.status==="Under Investigation" && hasPerm("markDecision") ? `<button class="green" onclick="pos('${b.id}')">Mark Positive</button><button class="orange" onclick="neg('${b.id}')">Mark Negative</button>` : ""}
+        ${c.status==="Investigation Positive" && hasPerm("approve") ? `<button class="green" onclick="approve('${b.id}')">Approve by Admin</button>` : ""}
+        ${c.status==="Investigation Negative" && hasPerm("markDecision") ? `<button class="red" onclick="closeNegative('${b.id}')">Close Case</button>` : ""}
+        ${c.status==="Approved" && hasPerm("grantAid") ? `<button class="teal" onclick="openAidModal('${b.id}','one')">Grant One-Time Aid</button><button class="purple" onclick="openAidModal('${b.id}','regular')">Grant Regular Aid</button>` : ""}
+      </div>
+    </div>`;
+}
+
+function renderHistory(b){
+  if(!b.history.length) return '<div class="muted" style="margin-top:12px;">No assistance history</div>';
+  const isVisible = !!historyVisibility[b.id];
+  let html = `
+    <div class="action-grid">
+      <button onclick="toggleHistory('${b.id}')" style="background:limegreen; color:white;">
+  ${isVisible ? "Hide History" : "History"}
+</button>
+    </div>
+    <div class="history-list ${isVisible ? "" : "hidden"}">
+      <div class='section-title' style='margin-top:12px;'>Previous Assistance</div>`;
+  b.history.forEach((h, i) => {
+    html += `
+      <div class="history-item">
+        <div><b>${escapeHtml(h.type)}</b> — ${escapeHtml(h.category || "N/A")}</div>
+        ${h.amount ? `<div>Amount: ₹ ${escapeHtml(formatAmount(h.amount))}</div>` : ""}
+        ${h.fundType ? `<div>Fund Source: ${escapeHtml(h.fundType)}</div>` : ""}
+        ${h.dealer ? `<div>Dealer: ${escapeHtml(h.dealer)}</div>` : ""}
+        ${h.assistanceMode ? `<div>Case Type: ${escapeHtml(h.assistanceMode)}</div>` : ""}
+        ${h.investigationCompletedAt ? `<div>Investigation Completed: ${escapeHtml(h.investigationCompletedAt)}</div>` : ""}
+        ${h.aidGrantedAt ? `<div>Aid Granted: ${escapeHtml(h.aidGrantedAt)}</div>` : ""}
+        ${h.date ? `<div>Recorded: ${escapeHtml(h.date)}</div>` : ""}
+        ${h.note ? `<div>Note: ${escapeHtml(h.note)}</div>` : ""}
+        ${h.voucherGeneratedBy ? `<div>Voucher Generated By: ${escapeHtml(h.voucherGeneratedBy)}</div>` : ""}
+        <div class="inline-actions">
+          ${hasPerm("viewVoucher") ? `<button class="blue" onclick="openVoucherFromHistory('${b.id}', ${i})">Open Voucher</button>` : ""}
+          ${session.role === 'admin' ? `<button class="red" onclick="deleteHistory('${b.id}', ${i})">Delete</button>` : ""}
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderAudit(b){
+  if(!b.auditLog.length) return "";
+  const isVisible = !!auditVisibility[b.id];
+  let html = `
+    <div class="action-grid">
+      <button class="gray" onclick="toggleAudit('${b.id}')">${isVisible ? "Hide Audit Trail" : "Show Audit Trail"}</button>
+    </div>
+    <div class="audit-list ${isVisible ? "" : "hidden"}">
+      <div class='section-title' style='margin-top:12px;'>Audit Trail</div>`;
+  b.auditLog.forEach(item => {
+    html += `
+      <div class="audit-item">
+        <div><b>${escapeHtml(item.action)}</b></div>
+        ${item.details ? `<div>${escapeHtml(item.details)}</div>` : ""}
+        <div class="muted">${escapeHtml(item.by)} (${escapeHtml(item.role)}) — ${escapeHtml(item.at)}</div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  return html;
+}
+
+function toggleHistory(id){
+  historyVisibility[id] = !historyVisibility[id];
+  rerenderCurrentView();
+}
+
+function toggleAudit(id){
+  auditVisibility[id] = !auditVisibility[id];
+  rerenderCurrentView();
+}
+
+function rerenderCurrentView(){
+  renderPendingCounters();
+  renderDailyBook();
+  if(currentDashboardFilter){
+    const filtered = getStatusFilteredList(currentDashboardFilter.type);
+    currentDashboardFilter.label = getDashboardFilterLabel(currentDashboardFilter.type, filtered.length);
+    currentRenderedIds = filtered.map(d => d.id);
+    render(filtered);
+  } else if(Array.isArray(currentRenderedIds)){
+    render(data.filter(d => currentRenderedIds.includes(d.id)));
+  } else {
+    render(data);
+  }
+}
+
+function start(id){
+  if(!hasPerm("investigate")) return alert("Current role cannot start investigation");
+  const b = find(id);
+  if(!b) return;
+  b.currentCase.status = "Under Investigation";
+  addAudit(b, "Investigation Started", "Case moved to Under Investigation");
+  addDailyBookEntry("Investigation Started", b.id, b.name, "", "", "Case moved to Under Investigation", { entryDate: new Date().toISOString().slice(0,10) });
+  saveAll();
+  rerenderCurrentView();
+}
+
+function pos(id){
+  if(!hasPerm("markDecision")) return alert("Current role cannot mark case");
+  const b = find(id);
+  if(!b) return;
+  b.currentCase.status = "Investigation Positive";
+  b.currentCase.investigationCompletedAt = now();
+  addAudit(b, "Marked Positive", "Investigation marked positive");
+  addDailyBookEntry("Investigation Positive", b.id, b.name, "", "", "Investigation marked positive", { entryDate: new Date().toISOString().slice(0,10) });
+  saveAll();
+  rerenderCurrentView();
+}
+
+function neg(id){
+  if(!hasPerm("markDecision")) return alert("Current role cannot mark case");
+  const b = find(id);
+  if(!b) return;
+  b.currentCase.status = "Investigation Negative";
+  b.currentCase.investigationCompletedAt = now();
+  addAudit(b, "Marked Negative", "Investigation marked negative");
+  addDailyBookEntry("Investigation Negative", b.id, b.name, "", "", "Investigation marked negative", { entryDate: new Date().toISOString().slice(0,10) });
+  saveAll();
+  rerenderCurrentView();
+}
+
+function approve(id){
+  if(!hasPerm("approve")) return alert("Only Admin can approve");
+  const b = find(id);
+  if(!b) return;
+  b.currentCase.status = "Approved";
+  b.currentCase.approvedAt = now();
+  addAudit(b, "Approved", "Case approved by Admin");
+  addDailyBookEntry("Case Approved", b.id, b.name, "", "", "Case approved by Admin", { entryDate: new Date().toISOString().slice(0,10) });
+  saveAll();
+  rerenderCurrentView();
+}
+
+function closeNegative(id){
+  const b = find(id);
+  if(!b) return;
+  b.history.unshift({
+    date: now(),
+    type: "Rejected",
+    category: "N/A",
+    assistanceMode: b.currentCase?.assistanceMode || "New Assistance",
+    investigationCompletedAt: b.currentCase?.investigationCompletedAt || "",
+    aidGrantedAt: "",
+    amount: "",
+    dealer: "",
+    note: "Case closed after negative investigation",
+    voucherId: nextRef("VCH"),
+    voucherGeneratedBy: "",
+    voucherGeneratedAt: ""
+  });
+  addAudit(b, "Case Closed", "Negative case closed");
+  addDailyBookEntry("Case Closed", b.id, b.name, "", "", "Negative case closed", { entryDate: new Date().toISOString().slice(0,10) });
+  b.currentCase = null;
+  saveAll();
+  rerenderCurrentView();
+}
+
+function continueRegular(id){ openAidModal(id, "continueRegular"); }
+
+function newCase(id){
+  if(!hasPerm("grantAid")) return alert("Only Admin can open a new approved assistance flow");
+  const b = find(id);
+  if(!b) return;
+  if(b.currentCase){ alert("Finish current case first"); return; }
+  b.currentCase = {
+    status: "Approved",
+    registeredAt: now(),
+    investigationCompletedAt: "",
+    approvedAt: now(),
+    assistanceMode: "New Assistance",
+    aidCategory: "",
+    aidNote: "",
+    skipInvestigation: true
+  };
+  addAudit(b, "New Assistance Opened", "Fresh approved case opened by Admin");
+  addDailyBookEntry("New Assistance Opened", b.id, b.name, "", "", "Fresh approved case opened by Admin", { entryDate: new Date().toISOString().slice(0,10) });
+  saveAll();
+  rerenderCurrentView();
+}
+
+function clearData(){
+  if(!confirm("Clear all demo data?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem("taibaV10");
+  localStorage.removeItem("taibaV8");
+  localStorage.removeItem("taibaV7");
+  localStorage.removeItem("taibaV6");
+  localStorage.removeItem(DAILY_BOOK_KEY);
+  data = [];
+  dailyBook = [];
+  currentRenderedIds = null;
+  document.getElementById("output").innerHTML = "";
+  renderDailyBook();
+}
+
+function find(id){ return data.find(x => x.id === id); }
+
+function checkDuplicates(contact, aadhar, editingId = null){
+  const cleanContact = (contact || "").replace(/\D/g, "");
+  const cleanAadhar = (aadhar || "").replace(/\D/g, "");
+  let duplicateMobile = null;
+  let duplicateAadhar = null;
+
+  data.forEach(b => {
+    if(b.id === editingId) return;
+    const existingContact = (b.profile?.contact || "").replace(/\D/g, "");
+    const existingAadhar = (b.profile?.aadhar || "").replace(/\D/g, "");
+    if(cleanContact && existingContact === cleanContact) duplicateMobile = b;
+    if(cleanAadhar && existingAadhar === cleanAadhar) duplicateAadhar = b;
+  });
+
+  return { duplicateMobile, duplicateAadhar };
+}
+
+function updateDuplicateWarnings(){
+  const contact = document.getElementById("f_contact").value.replace(/\D/g, "");
+  const aadhar = document.getElementById("f_aadhar").value.replace(/\D/g, "");
+  const { duplicateMobile, duplicateAadhar } = checkDuplicates(contact, aadhar, editingId);
+  const box = document.getElementById("duplicateWarning");
+  let html = "";
+  if(duplicateMobile) html += `<div style="color:#b58900;">⚠️ Mobile used by ${escapeHtml(duplicateMobile.name)}</div>`;
+  if(duplicateAadhar) html += `<div style="color:#dc3545;">⚠️ Aadhar used by ${escapeHtml(duplicateAadhar.name)}</div>`;
+  box.innerHTML = html;
+}
+
+function formatAmount(value){
+  const num = Number(value || 0);
+  return num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function numberToWords(num) {
+  const ones = ["", "One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+
+  function convertWhole(n) {
+    n = Number(n || 0);
+    if (n === 0) return "Zero";
+    if (n < 20) return ones[n].trim();
+    if (n < 100) return (tens[Math.floor(n/10)] + " " + ones[n%10]).trim();
+    if (n < 1000) return (ones[Math.floor(n/100)] + " Hundred " + convertWhole(n%100)).trim();
+    if (n < 100000) return (convertWhole(Math.floor(n/1000)) + " Thousand " + convertWhole(n%1000)).trim();
+    if (n < 10000000) return (convertWhole(Math.floor(n/100000)) + " Lakh " + convertWhole(n%100000)).trim();
+    return (convertWhole(Math.floor(n/10000000)) + " Crore " + convertWhole(n%10000000)).trim();
+  }
+
+  const fixed = Number(num || 0).toFixed(2);
+  const parts = fixed.split(".");
+  const rupees = parseInt(parts[0], 10);
+  const paise = parseInt(parts[1], 10);
+
+  let words = convertWhole(rupees) + " Rupees";
+  if (paise > 0) words += " and " + convertWhole(paise) + " Paise";
+  return words + " Only";
+}
+
+function openVoucherFromHistory(id, index){
+  const b = find(id);
+  if(!b || !b.history[index]) return;
+  const h = b.history[index];
+  currentVoucherContext = { beneficiaryId: id, index };
+
+  document.getElementById("v_id").textContent = h.voucherId || "-";
+  document.getElementById("v_date").textContent = h.voucherGeneratedAt || h.date || "-";
+  document.getElementById("v_generatedBy").textContent = h.voucherGeneratedBy || "-";
+  document.getElementById("v_dealer").textContent = h.dealer || "-";
+  document.getElementById("v_type").textContent = h.category || "-";
+  document.getElementById("v_fundType").textContent = h.fundType || "-";
+  document.getElementById("v_amount").textContent = formatAmount(h.amount);
+  document.getElementById("v_words").textContent = numberToWords(h.amount);
+  document.getElementById("v_name").textContent = b.name || "-";
+
+  addAudit(b, "Voucher Opened", `Voucher ${h.voucherId} opened`);
+  saveAll();
+  document.getElementById("voucherModal").classList.add("show");
+}
+
+function closeVoucher(){
+  document.getElementById("voucherModal").classList.remove("show");
+  currentVoucherContext = null;
+}
+
+function printVoucher(){
+  window.print();
+}
+
+async function shareVoucher(){
+  const text = [
+    "TAIBA EDUCATIONAL & WELFARE SOCIETY",
+    "Voucher ID: " + document.getElementById("v_id").textContent,
+    "Date: " + document.getElementById("v_date").textContent,
+    "Pay To: " + document.getElementById("v_dealer").textContent,
+    "Account Of: " + document.getElementById("v_type").textContent,
+    "Fund Source: " + document.getElementById("v_fundType").textContent,
+    "Amount: ₹ " + document.getElementById("v_amount").textContent,
+    "Beneficiary: " + document.getElementById("v_name").textContent
+  ].join("\n");
+
+  try{
+    if(navigator.share){
+      await navigator.share({ title: "TAIBA Voucher", text });
+    } else if(navigator.clipboard){
+      await navigator.clipboard.writeText(text);
+      alert("Voucher text copied");
+    } else {
+      alert(text);
+    }
+  } catch(e){}
+}
+
+function openReceiptModal(entry){
+  currentReceiptContext = entry;
+  const heading = entry.fundType === "Zakat Fund" ? "ZAKAT RECEIPT" : (entry.fundType === "Donation Fund" ? "DONATION RECEIPT" : "RECEIPT");
+  document.getElementById("r_fundHeading").textContent = heading;
+  document.getElementById("r_id").textContent = entry.id || "-";
+  document.getElementById("r_date").textContent = entry.date || now();
+  document.getElementById("r_party").textContent = entry.party || "-";
+  document.getElementById("r_amount").textContent = formatAmount(entry.amount || 0);
+  document.getElementById("r_words").textContent = numberToWords(entry.amount || 0);
+  document.getElementById("r_mode").textContent = entry.mode || "-";
+  document.getElementById("r_fundType").textContent = entry.fundType || "-";
+  document.getElementById("r_receivedBy").textContent = entry.receivedBy || actorLabel();
+  document.getElementById("r_noteWrap").textContent = entry.note ? `Note: ${entry.note}` : "";
+  document.getElementById("receiptModal").classList.add("show");
+}
+
+function closeReceipt(){
+  document.getElementById("receiptModal").classList.remove("show");
+  currentReceiptContext = null;
+}
+
+function printReceipt(){
+  const receiptModal = document.getElementById("receiptModal");
+  const voucherModal = document.getElementById("voucherModal");
+  const prevReceipt = receiptModal.classList.contains("show");
+  const prevVoucher = voucherModal.classList.contains("show");
+  if(!prevReceipt) receiptModal.classList.add("show");
+  if(prevVoucher) voucherModal.classList.remove("show");
+  window.print();
+  if(!prevReceipt) receiptModal.classList.remove("show");
+  if(prevVoucher) voucherModal.classList.add("show");
+}
+
+function shareReceipt(){
+  const receiptModal = document.getElementById("receiptModal");
+  const voucherModal = document.getElementById("voucherModal");
+  const prevReceipt = receiptModal.classList.contains("show");
+  const prevVoucher = voucherModal.classList.contains("show");
+
+  if(!prevReceipt) receiptModal.classList.add("show");
+  if(prevVoucher) voucherModal.classList.remove("show");
+
+  setTimeout(() => {
+    window.print();
+    if(!prevReceipt) receiptModal.classList.remove("show");
+    if(prevVoucher) voucherModal.classList.add("show");
+  }, 50);
+}
+
+
+function deleteHistory(id, index){
+  if(session.role !== "admin") return alert("Only Admin can delete history");
+  if(!confirm("Delete this entry?")) return;
+  const b = find(id);
+  if(!b) return;
+  const removed = b.history[index];
+  b.history.splice(index, 1);
+  addAudit(b, "History Deleted", removed?.voucherId ? `Deleted ${removed.voucherId}` : "History entry deleted");
+  saveAll();
+  rerenderCurrentView();
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function compressImage(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = new Image();
+      img.onload = function(){
+        const maxWidth = 640, maxHeight = 640;
+        let width = img.width, height = img.height;
+        if(width > maxWidth || height > maxHeight){
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+
+</body>
+</html>
